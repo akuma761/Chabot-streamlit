@@ -1,20 +1,25 @@
-# Use the official Python image
-FROM python:3.10
+FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first (Docker caching)
+# Install Python and pip
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
 COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt --default-timeout=100 future
-
-# Copy the rest of the code
+# Copy the application code
 COPY . .
 
-# Streamlit port
+# Create directories
+RUN mkdir -p docs db
+
+# Expose Streamlit port
 EXPOSE 8501
 
-# Run Streamlit
-CMD ["streamlit", "run", "chatbot.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.enableCORS=false"]
+# Run the application
+CMD ["streamlit", "run", "chatbot.py", "--server.address=0.0.0.0"]

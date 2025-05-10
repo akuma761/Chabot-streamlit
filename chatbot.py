@@ -19,7 +19,9 @@ from streamlit_chat import message
 warnings.filterwarnings('ignore')
 
 st.set_page_config(layout="wide")
-device = torch.device('cpu')
+# Replace the device configuration
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Using device: {device}")
 
 checkpoint = "MBZUAI/LaMini-T5-738M"
 print(f"Checkpoint path: {checkpoint}")  # Add this line for debugging
@@ -28,6 +30,8 @@ base_model = AutoModelForSeq2SeqLM.from_pretrained(
     checkpoint,
     device_map=device,
     torch_dtype=torch.float32
+    # device_map="auto",  # This will automatically handle GPU allocation
+    # torch_dtype=torch.float16  # Using float16 for GPU efficiency
 )
 
 persist_directory = "db"

@@ -1,0 +1,32 @@
+version: 1
+name: chatbot-pdf
+runtime:
+  gpu:
+    count: 1
+    type: NVIDIA-A100
+  memory: 16Gi
+  cpu: 4
+
+container:
+  image: ${DOCKER_IMAGE}
+  ports:
+    - containerPort: 8501
+      hostPort: 8501
+  
+environment:
+  - name: CUDA_VISIBLE_DEVICES
+    value: "0"
+  - name: TRANSFORMERS_CACHE
+    value: "/app/.cache/huggingface"
+
+volumes:
+  - name: model-cache
+    mountPath: /app/.cache
+    size: 10Gi
+
+healthCheck:
+  httpGet:
+    path: /
+    port: 8501
+  initialDelaySeconds: 30
+  periodSeconds: 10
